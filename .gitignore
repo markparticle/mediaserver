@@ -1,1 +1,9 @@
-mediaserver/server/server
+*
+!*.*
+!*/
+!*.cpp
+!*.h
+!makefile
+
+/source.cpp
+/source.h
