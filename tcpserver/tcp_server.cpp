@@ -2,7 +2,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include<string.h>
+#include <string.h>
 
 const int PORT = 8111;
 const int MESSAGE_LEN = 1024;
@@ -13,6 +13,7 @@ int main(int argc, char* argv[]){
     int ret;
     int backlog = 10;
     char in_buff[MESSAGE_LEN] = {0};
+    pid_t pid;
 
     int socket_fd, accept_fd;
     struct sockaddr_in localaddr, remoteaddr;
@@ -50,19 +51,25 @@ int main(int argc, char* argv[]){
     while(true){
         socklen_t addr_len =  sizeof(struct sockaddr);
         accept_fd = accept(socket_fd, (struct sockaddr*) &remoteaddr, &addr_len);
-        while(true){
-            memset(in_buff, 0, MESSAGE_LEN);
-            ret = recv(accept_fd, (void *)in_buff, MESSAGE_LEN, 0);
-            if(ret == 0){
-                break;
+        pid = fork();
+        //子进程
+        if(pid == 0){
+            while(true){
+                memset(in_buff, 0, MESSAGE_LEN);
+                ret = recv(accept_fd, (void *)in_buff, MESSAGE_LEN, 0);
+                if(ret == 0){
+                    break;
+                }
+                std::cout << "recv: " << in_buff <<std::endl;
+                send(accept_fd, (void*)in_buff, MESSAGE_LEN, 0);
             }
-            std::cout << "recv: " << in_buff <<std::endl;
-            send(accept_fd, (void*)in_buff, MESSAGE_LEN, 0);
+            printf("close client connection...\n");
+            close(accept_fd);
         }
-        printf("close client connection...\n");
-        close(accept_fd);
     }
-    printf("quit server...\n");
-    close(socket_fd);
+    if(pid != 0){
+        printf("quit server...\n");
+        close(socket_fd);
+    }
     return 0;
 }
