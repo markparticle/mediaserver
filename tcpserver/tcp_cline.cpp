@@ -56,7 +56,7 @@ int main(int argc, char* argv[]){
             break;
         }
         recvbuf[ret] = '\0';
-        std::cout << recvbuf << std::endl;
+        std::cout << recvbuf;
     }
     std::cout << "Cline quit!" << std::endl;
     close(socket_fd);
